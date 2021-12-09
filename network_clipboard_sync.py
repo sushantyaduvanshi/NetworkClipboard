@@ -2,10 +2,14 @@ import threading
 from queue import Empty, Queue
 import pyperclip as pc
 import socket
+from dotenv import load_dotenv
+from os import getenv
 
-port = 6363
-other_ip = ["192.168.0.117"]        # append device ip in list in order to add that device in clipboard
-                                    # all devices should be running this file in order to use same clipboard
+# all devices should be running this file in order to use same clipboard
+
+load_dotenv()
+port = getenv('port')
+other_ip = getenv('other_ip')
 
 def server(queue):
 
