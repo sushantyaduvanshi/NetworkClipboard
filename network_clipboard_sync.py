@@ -4,7 +4,8 @@ import pyperclip as pc
 import socket
 
 port = 6363
-other_ip = ["192.168.0.117"]
+other_ip = ["192.168.0.117"]        # append device ip in list in order to add that device in clipboard
+                                    # all devices should be running this file in order to use same clipboard
 
 def server(queue):
 
@@ -19,7 +20,6 @@ def server(queue):
 
         conn, addr = so.accept()
         data_copied = conn.recv(1024).decode()
-        # print(f"data copied => {data_copied}")
         queue.put(data_copied)
         pc.copy(data_copied)
         conn.close()
@@ -29,7 +29,6 @@ def client(queue):
     while True:
 
         pc.waitForNewPaste()
-        # print("new paste found..!!")
 
         data_copied = pc.paste()
 
