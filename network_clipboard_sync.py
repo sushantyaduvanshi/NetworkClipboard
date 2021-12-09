@@ -4,7 +4,7 @@ import pyperclip as pc
 import socket
 
 port = 6363
-other_ip = "192.168.0.117"
+other_ip = ["192.168.0.117"]
 
 def server(queue):
 
@@ -35,22 +35,27 @@ def client(queue):
 
         if(queue.empty() or queue.get() != data_copied):
 
-            so = socket.socket()
-            
-            try:
-
-                so.connect((other_ip, port))
-
-                so.send(data_copied.encode())
-
-            except (ConnectionRefusedError, TimeoutError):
-                print("Connection Error..!!")
-
-            finally:
-                so.close()
+            for ip in other_ip:
+                t = threading.Thread(target=send_socket_pack, args=(ip, port, data_copied))
+                t.start()
         
         else:
             pass
+
+def send_socket_pack(ip, port, data_copied):
+    so = socket.socket()
+            
+    try:
+
+        so.connect((ip, port))
+
+        so.send(data_copied.encode())
+
+    except (ConnectionRefusedError, TimeoutError):
+        print("Connection Error..!!")
+
+    finally:
+        so.close()
 
 
 q = Queue()
