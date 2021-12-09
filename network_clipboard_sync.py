@@ -8,7 +8,7 @@ from os import getenv
 # all devices should be running this file in order to use same clipboard
 
 load_dotenv()
-port = getenv('port')
+port = int(getenv('port'))
 other_ip = getenv('other_ip')
 
 def server(queue):
