@@ -4,12 +4,13 @@ import pyperclip as pc
 import socket
 from dotenv import load_dotenv
 from os import getenv
+from json import loads
 
 # all devices should be running this file in order to use same clipboard
 
 load_dotenv()
 port = int(getenv('port'))
-other_ip = getenv('other_ip')
+other_ip = loads(getenv('other_ip'))
 
 def server(queue):
 
@@ -46,6 +47,8 @@ def client(queue):
             pass
 
 def send_socket_pack(ip, port, data_copied):
+    print(ip, port, "*****")
+    print(data_copied, "*****")
     so = socket.socket()
             
     try:
