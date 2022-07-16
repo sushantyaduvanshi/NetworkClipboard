@@ -28,20 +28,14 @@ def connect(ip, port):
             print("Connection Error..!!")
             sleep(3)
 
-def check_connection(so):
+def get_connection(so):
     try:
-        so.send("ping".encode())
+        send_socket_pack(so, "ping")
         if(so.recv(50).decode().lower() == 'pong'):
             return True
         return False
     except:
         return False
-
-def get_connected(so):
-    if check_connection(so):
-        return True
-    else:
-        connect(server_ip, server_port)
 
 def client_copy(so):
     while True:
@@ -64,7 +58,9 @@ def recv_socket_pack(so):
     while True:
         try:
             data = so.recv(buffer_size).decode()
-            if data[:4].lower() == "ping":
+            if data.strip() == '':
+                get_connection(so)
+            elif data[:4].lower() == "ping":
                 send_socket_pack(so, "pong")
             else:
                 pc.copy(data)
