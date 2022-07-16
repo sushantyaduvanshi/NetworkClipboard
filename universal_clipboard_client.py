@@ -11,8 +11,9 @@ from json import loads
 # all devices should be running this file in order to use same clipboard
 
 load_dotenv()
-server_port = int(getenv('port'))
-server_ip = loads(getenv('server_ip'))
+server_port = int(getenv('server_port'))
+server_ip = getenv('server_ip')
+buffer_size = int(getenv('buffer_size'))
 sending_state = False
 receiving_state = False
 threads = []
@@ -53,6 +54,7 @@ def send_socket_pack(so, data_copied):
     while True:
         try:
             so.send(data_copied.encode())
+            break
         except:
             print("Sending Connection Error..!!")
             sleep(3)
@@ -60,7 +62,7 @@ def send_socket_pack(so, data_copied):
 def recv_socket_pack(so):
     while True:
         try:
-            data = so.recv(6144).decode()
+            data = so.recv(buffer_size).decode()
             if data[:4].lower() == "ping":
                 send_socket_pack(so, "pong")
             else:
