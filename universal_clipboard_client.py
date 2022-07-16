@@ -46,6 +46,7 @@ def get_connected(so):
 def client_copy(so):
     while True:
         data_copied = pc.waitForNewPaste()
+        print("Copied ::", data_copied)
         t = threading.Thread(target=send_socket_pack, args=(so, data_copied))
         threads.append(t)
         t.start()
@@ -67,6 +68,7 @@ def recv_socket_pack(so):
                 send_socket_pack(so, "pong")
             else:
                 pc.copy(data)
+            print("Received ::", data)
         except:
             print("Receiving Connection Error..!!")
             sleep(3)

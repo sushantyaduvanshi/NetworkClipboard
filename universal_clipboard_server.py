@@ -68,7 +68,7 @@ def recv_socket_pack(conn):
             else:
                 for c in filter(lambda x:x!=conn, clients):
                     send_socket_pack(c, data)
-            print(data)
+            print("Received ::", data)
         except:
             print("Receiving Connection Error..!!")
             sleep(3)
