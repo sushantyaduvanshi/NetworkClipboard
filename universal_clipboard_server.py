@@ -66,9 +66,10 @@ def recv_socket_pack(conn):
             if data[:4].lower() == "ping":
                 send_socket_pack(conn, "pong")
             else:
+                pc.copy(data)
                 for c in filter(lambda x:x!=conn, clients):
                     send_socket_pack(c, data)
-            print("Received ::", data)
+            # print("Received ::", data)
         except:
             print("Receiving Connection Error..!!")
             sleep(3)

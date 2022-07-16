@@ -17,6 +17,7 @@ buffer_size = int(getenv('buffer_size'))
 sending_state = False
 receiving_state = False
 threads = []
+reset = False
 
 def connect(ip, port):
     so = socket.socket()
@@ -40,7 +41,9 @@ def get_connection(so):
 def client_copy(so):
     while True:
         data_copied = pc.waitForNewPaste()
-        print("Copied ::", data_copied)
+        if reset:
+            break
+        # print("Copied ::", data_copied)
         t = threading.Thread(target=send_socket_pack, args=(so, data_copied))
         threads.append(t)
         t.start()
@@ -53,25 +56,33 @@ def send_socket_pack(so, data_copied):
         except:
             print("Sending Connection Error..!!")
             sleep(3)
+        if reset:
+            break
 
 def recv_socket_pack(so):
     while True:
         try:
             data = so.recv(buffer_size).decode()
             if data.strip() == '':
-                get_connection(so)
+                so.close()
+                break
             elif data[:4].lower() == "ping":
                 send_socket_pack(so, "pong")
             else:
                 pc.copy(data)
-            print("Received ::", data)
+            # print("Received ::", data)
         except:
             print("Receiving Connection Error..!!")
             sleep(3)
 
 
-so = connect(server_ip, server_port)
-t1 = threading.Thread(target=client_copy, args=(so,))
-t2 = threading.Thread(target=recv_socket_pack, args=(so,))
-t1.start()
-t2.start()
+while True:
+    reset = False
+    so = connect(server_ip, server_port)
+    t1 = threading.Thread(target=client_copy, args=(so,))
+    t1.start()
+    recv_socket_pack(so)
+    reset = True
+    pc.copy('')
+    t1.join()
+    print("Restarting...")
