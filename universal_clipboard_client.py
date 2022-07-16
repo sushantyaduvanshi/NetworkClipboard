@@ -1,5 +1,7 @@
+from ast import arg
 import threading
 from queue import Empty, Queue
+from time import sleep
 import pyperclip as pc
 import socket
 from dotenv import load_dotenv
@@ -9,44 +11,67 @@ from json import loads
 # all devices should be running this file in order to use same clipboard
 
 load_dotenv()
-port = int(getenv('port'))
-other_ip = loads(getenv('other_ip'))
+server_port = int(getenv('port'))
+server_ip = loads(getenv('server_ip'))
+sending_state = False
+receiving_state = False
+threads = []
 
-def client(queue):
-
-    while True:
-
-        pc.waitForNewPaste()
-
-        data_copied = pc.paste()
-
-        if(queue.empty() or queue.get() != data_copied):
-
-            for ip in other_ip:
-                t = threading.Thread(target=send_socket_pack, args=(ip, port, data_copied))
-                t.start()
-        
-        else:
-            pass
-
-def send_socket_pack(ip, port, data_copied):
-    print(ip, port, "*****")
-    print(data_copied, "*****")
+def connect(ip, port):
     so = socket.socket()
-            
+    while True:
+        try:
+            so.connect((ip, port))
+            return so
+        except:
+            print("Connection Error..!!")
+            sleep(3)
+
+def check_connection(so):
     try:
+        so.send("ping".encode())
+        if(so.recv(50).decode().lower() == 'pong'):
+            return True
+        return False
+    except:
+        return False
 
-        so.connect((ip, port))
+def get_connected(so):
+    if check_connection(so):
+        return True
+    else:
+        connect(server_ip, server_port)
 
-        so.send(data_copied.encode())
+def client_copy(so):
+    while True:
+        data_copied = pc.waitForNewPaste()
+        t = threading.Thread(target=send_socket_pack, args=(so, data_copied))
+        threads.append(t)
+        t.start()
 
-    except (ConnectionRefusedError, TimeoutError):
-        print("Connection Error..!!")
+def send_socket_pack(so, data_copied):
+    while True:
+        try:
+            so.send(data_copied.encode())
+        except:
+            print("Sending Connection Error..!!")
+            sleep(3)
 
-    finally:
-        so.close()
+def recv_socket_pack(so):
+    while True:
+        try:
+            data = so.recv(6144).decode()
+            if data[:4].lower() == "ping":
+                send_socket_pack(so, "pong")
+            else:
+                pc.copy(data)
+        except:
+            print("Receiving Connection Error..!!")
+            sleep(3)
 
 
-q = Queue()
-t2 = threading.Thread(target=client, args=(q,))
+so = connect(server_ip, server_port)
+t1 = threading.Thread(target=client_copy, args=(so,))
+t2 = threading.Thread(target=recv_socket_pack, args=(so,))
+t1.start()
 t2.start()
