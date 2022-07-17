@@ -24,14 +24,15 @@ def connect(ip, port):
     while True:
         try:
             so.connect((ip, port))
+            print("Universal Keyboard Connected ::", check_connection(so))
             return so
         except:
             print("Connection Error..!!")
             sleep(3)
 
-def get_connection(so):
+def check_connection(so):
     try:
-        send_socket_pack(so, "ping")
+        so.send("ping".encode())
         if(so.recv(50).decode().lower() == 'pong'):
             return True
         return False
