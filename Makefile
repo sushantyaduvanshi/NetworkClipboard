@@ -21,7 +21,7 @@ run:
 	python3 network_clipboard_sync.py; \
 	elif [ "$(shell screen -ls | grep NetworkClipboard)" = "" ]; \
 	then \
-	screen -S NetworkClipboard -dm bash -c "source clipboard_venv/bin/activate; python3 network_clipboard_sync.py;"; \
+	screen -S NetworkClipboard -dm bash -c "source clipboard_venv/bin/activate; python3 universal_clipboard_client.py;"; \
 	else \
 	echo "\033[0;31m\n Program in Already running in Screen..!! \n\033[0m"; \
 	fi
