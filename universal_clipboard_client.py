@@ -84,7 +84,7 @@ def recv_socket_pack(so):
             else:
                 pc.copy(data)
                 
-            # print("Received ::", data)
+            print("Received ::", data[:6]+'...', len(data))
         except Exception as e:
             print("Receiving Connection Error..!!", e)
             if reset:
